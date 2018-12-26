@@ -2,6 +2,23 @@ import org.apache.spark.scheduler._
 import org.apache.spark.sql.types._
 import collection.JavaConverters._
 
+import org.apache.spark.scheduler._
+import org.apache.spark._
+import org.apache.spark.TaskEndReason
+import org.apache.spark.JobExecutionStatus
+import org.apache.spark.SparkContext
+import scala.collection.mutable
+import org.apache.spark.scheduler.cluster._
+import scala.collection.mutable.{ HashMap, HashSet, LinkedHashMap, ListBuffer }
+import java.net._
+import java.io._
+
+import com.ibm.pixiedust._;
+
+val executorCores = new HashMap[String, Int]
+@volatile var totalCores: Int = 0
+@volatile var numExecutors: Int = 0
+
 def serializeStageJSON(stageInfo: StageInfo):String={
     return s"""{
         "stageId":"${stageInfo.stageId}",
@@ -22,7 +39,7 @@ def serializeStagesJSON(stageInfos: Seq[StageInfo]):String = {
     }
 }
 
-def serializeTaskJSON(taskInfo: TaskInfo):String = {
+def serializeTaskStartJSON(taskInfo: TaskInfo):String = {
     return s"""{
         "taskId":"${taskInfo.taskId}", 
         "attemptNumber":${taskInfo.attemptNumber},
@@ -30,6 +47,20 @@ def serializeTaskJSON(taskInfo: TaskInfo):String = {
         "launchTime":${taskInfo.launchTime},
         "executorId":"${taskInfo.executorId}",
         "host":"${taskInfo.host}"
+    }"""
+}
+
+def serializeTaskEndJSON(taskEnd: SparkListenerTaskEnd):String = {
+    var taskInfo = taskEnd.taskInfo
+    var metricsOpt = Option(taskEnd.taskMetrics)
+    return s"""{
+        "taskId":"${taskInfo.taskId}", 
+        "attemptNumber":${taskInfo.attemptNumber},
+        "index":${taskInfo.index},
+        "launchTime":${taskInfo.launchTime},
+        "executorId":"${taskInfo.executorId}",
+        "host":"${taskInfo.host}",
+	      "peakExecutionMemory":"${metricsOpt.map(_.peakExecutionMemory).getOrElse(0L)}"
     }"""
 }
 
@@ -62,7 +93,7 @@ val __pixiedustSparkListener = new SparkListener{
     override def onTaskStart(taskStart: SparkListenerTaskStart) { 
         channelReceiver.send("taskStart", s"""{
             "stageId":"${taskStart.stageId}",
-            "taskInfo":${serializeTaskJSON(taskStart.taskInfo)}
+            "taskInfo":${serializeTaskStartJSON(taskStart.taskInfo)}
         }
         """)
     }
@@ -71,7 +102,7 @@ val __pixiedustSparkListener = new SparkListener{
         channelReceiver.send("taskEnd", s"""{
             "stageId":"${taskEnd.stageId}",
             "taskType":"${taskEnd.taskType}",
-            "taskInfo":${serializeTaskJSON(taskEnd.taskInfo)}
+            "taskInfo":${serializeTaskEndJSON(taskEnd)}
         }
         """)
     }
@@ -97,6 +128,36 @@ val __pixiedustSparkListener = new SparkListener{
         }
         """)
     }
+
+    /** Called when an executor is added. */
+    override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded) {
+        executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
+        totalCores += executorAdded.executorInfo.totalCores
+        numExecutors += 1
+        channelReceiver.send("executorAdded", s"""{
+            "executorId":"${executorAdded.executorId}",
+            "time" : "${executorAdded.time}",
+            "host" : "${executorAdded.executorInfo.executorHost}",
+            "numCores" : "${executorAdded.executorInfo.totalCores}",
+            "totalCores" : "${totalCores}"
+        }
+        """)
+    }
+
+    /** Called when an executor is removed. */
+    override def onExecutorRemoved(executorRemoved: SparkListenerExecutorRemoved) {
+        totalCores -= executorCores.getOrElse(executorRemoved.executorId, 0)
+        numExecutors -= 1
+
+        // println("SPARKMONITOR_LISTENER: Executor Removed: \n" + pretty(render(json)) + "\n")
+        channelReceiver.send("executorRemoved", s"""{
+            "executorId":"${executorRemoved.executorId}",
+            "time" -> "${executorRemoved.time}",
+            "totalCores" : "${totalCores}"
+        }
+        """)
+    }
+
 }
 
 sc.addSparkListener(__pixiedustSparkListener)
