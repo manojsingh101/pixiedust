@@ -19,8 +19,10 @@
 $("#pm_container{{prefix}}").css("border","1px solid #dddddd").css("padding","10px")
 var jobName = 'Job {{data["jobId"]}} ({{data["stageInfos"]|length}} '+
             {%if data["stageInfos"]|length > 1%} 'Stages'+ {%else%} 'Stage'+ {%endif%} ')'
+var cores = 'Cores {{data["executorInfo"].totalCores}}'
 $("#pm_overallContainer{{prefix}}").show();
 $("#pm_overallJobName{{prefix}}").text(jobName);
+$("#pm_overallJobName{{prefix}}cores").text(cores);
 $("#pm_overallProgress{{prefix}}").attr("max", {{overalNumTasks}}).attr("value",0);
 $("#progressMonitors{{prefix}}").append(
     '<li>'+
