@@ -129,17 +129,32 @@ val __pixiedustSparkListener = new SparkListener{
         """)
     }
 
+
+    def serializeExecutorAddedJSON(stageInfo: StageInfo):String={
+        return s"""{
+            "stageId":"${stageInfo.stageId}",
+            "name":"${stageInfo.name}",
+            "details":"${stageInfo.details.replaceAll("\n", "\\\\\\\\n")}",
+            "numTasks":${stageInfo.numTasks}
+        }"""
+    }
+
     /** Called when an executor is added. */
     override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded) {
         executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
         totalCores += executorAdded.executorInfo.totalCores
         numExecutors += 1
-        channelReceiver.send("executorAdded", s"""{
-            "executorId":"${executorAdded.executorId}",
-            "time" : "${executorAdded.time}",
+
+        var executorInfoJson = s"""{
             "host" : "${executorAdded.executorInfo.executorHost}",
             "numCores" : "${executorAdded.executorInfo.totalCores}",
             "totalCores" : "${totalCores}"
+        }"""
+
+        channelReceiver.send("executorAdded", s"""{
+            "executorId":"${executorAdded.executorId}",
+            "time" : "${executorAdded.time}",
+            "executorInfo" : "${executorInfoJson}"
         }
         """)
     }
@@ -149,11 +164,14 @@ val __pixiedustSparkListener = new SparkListener{
         totalCores -= executorCores.getOrElse(executorRemoved.executorId, 0)
         numExecutors -= 1
 
-        // println("SPARKMONITOR_LISTENER: Executor Removed: \n" + pretty(render(json)) + "\n")
+        var executorInfoJson = s"""{
+            "totalCores" : "${totalCores}"
+        }"""
+
         channelReceiver.send("executorRemoved", s"""{
             "executorId":"${executorRemoved.executorId}",
             "time" -> "${executorRemoved.time}",
-            "totalCores" : "${totalCores}"
+            "executorInfo" : "${executorInfoJson}"
         }
         """)
     }
