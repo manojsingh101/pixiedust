@@ -165,7 +165,11 @@ class SparkJobProgressMonitorOutput(Thread):
                 key = "{0}-{1}".format(channel,data["stageInfo"]["stageId"])
             elif channel=="jobEnd":
                 key = "{0}-{1}".format(channel,data["jobId"])
-
+            elif channel=="executorAdded":
+                key = "{0}-{1}".format(channel,data["executorId"])
+            elif channel=="executorRemoved":
+                key = "{0}-{1}".format(channel,data["executorId"])
+                
             if key:
                 with self.lock:
                     if key in self.progressData:
