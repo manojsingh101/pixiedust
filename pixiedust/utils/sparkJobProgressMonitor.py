@@ -108,6 +108,14 @@ class SparkJobProgressMonitorOutput(Thread):
                         js += _env.getTemplate("sparkJobProgressMonitor/jobEnded.js").render( 
                             prefix=self.prefix, jobId=data["jobId"] 
                         )
+                    elif channel=="executorAdded":
+                        js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
+                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"]
+                        )
+                    elif channel=="executorRemoved":
+                        js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
+                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"]
+                        )
                     js += "\n"
 
                 display(Javascript(js))
