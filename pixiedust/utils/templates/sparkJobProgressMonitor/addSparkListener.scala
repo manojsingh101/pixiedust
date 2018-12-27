@@ -90,7 +90,8 @@ val __pixiedustSparkListener = new SparkListener{
         """)
     }
 
-    override def onTaskStart(taskStart: SparkListenerTaskStart) { 
+    override def onTaskStart(taskStart: SparkListenerTaskStart) {
+        
         channelReceiver.send("taskStart", s"""{
             "stageId":"${taskStart.stageId}",
             "taskInfo":${serializeTaskStartJSON(taskStart.taskInfo)}
@@ -98,7 +99,8 @@ val __pixiedustSparkListener = new SparkListener{
         """)
     }
 
-    override def onTaskEnd(taskEnd: SparkListenerTaskEnd) { 
+    override def onTaskEnd(taskEnd: SparkListenerTaskEnd) {
+
         channelReceiver.send("taskEnd", s"""{
             "stageId":"${taskEnd.stageId}",
             "taskType":"${taskEnd.taskType}",
@@ -128,20 +130,10 @@ val __pixiedustSparkListener = new SparkListener{
         }
         """)
     }
-
-
-    def serializeExecutorAddedJSON(stageInfo: StageInfo):String={
-        return s"""{
-            "stageId":"${stageInfo.stageId}",
-            "name":"${stageInfo.name}",
-            "details":"${stageInfo.details.replaceAll("\n", "\\\\\\\\n")}",
-            "numTasks":${stageInfo.numTasks}
-        }"""
-    }
-
+    
     /** Called when an executor is added. */
     override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded) {
-        executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
+        //executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
         totalCores += executorAdded.executorInfo.totalCores
         numExecutors += 1
 
