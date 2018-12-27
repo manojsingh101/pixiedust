@@ -133,7 +133,7 @@ val __pixiedustSparkListener = new SparkListener{
     
     /** Called when an executor is added. */
     override def onExecutorAdded(executorAdded: SparkListenerExecutorAdded) {
-        //executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
+        executorCores(executorAdded.executorId) = executorAdded.executorInfo.totalCores
         totalCores += executorAdded.executorInfo.totalCores
         numExecutors += 1
 
@@ -162,7 +162,7 @@ val __pixiedustSparkListener = new SparkListener{
 
         channelReceiver.send("executorRemoved", s"""{
             "executorId":"${executorRemoved.executorId}",
-            "time" -> "${executorRemoved.time}",
+            "time" : "${executorRemoved.time}",
             "executorInfo" : "${executorInfoJson}"
         }
         """)
