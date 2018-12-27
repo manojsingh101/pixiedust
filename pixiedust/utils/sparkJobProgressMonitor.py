@@ -118,6 +118,11 @@ class SparkJobProgressMonitorOutput(Thread):
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
                             prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"]
                         )
+                    elif channel=="executorMetricsUpdate":
+                        print(data)
+                        js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
+                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorMetricsInfo"]["totalCores"]
+                        )
                     js += "\n"
 
                 display(Javascript(js))
