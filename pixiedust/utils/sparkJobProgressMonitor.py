@@ -155,6 +155,8 @@ class SparkJobProgressMonitorOutput(Thread):
             data["channel"] = channel
             data["increment"] = 1
             key = None
+            print("********** -> " + data["channel"])
+            print(s)
             if channel=="jobStart":
                 key = "{0}-{1}".format(channel,data["jobId"])
             elif channel=="stageSubmitted":
