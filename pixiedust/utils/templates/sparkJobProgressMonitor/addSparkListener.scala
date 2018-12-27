@@ -120,9 +120,9 @@ val __pixiedustSparkListener = new SparkListener{
         //channelReceiver.send("taskGettingResult", s"taskGettingResult ${taskGettingResult.taskInfo.taskId} : ${taskGettingResult.taskInfo.executorId}")
     }
 
-    override def onExecutorMetricsUpdate(executorMetricsUpdate: SparkListenerExecutorMetricsUpdate) { 
+    //override def onExecutorMetricsUpdate(executorMetricsUpdate: SparkListenerExecutorMetricsUpdate) { 
         //System.out.println(s"MetricsUpdate ${executorMetricsUpdate.execId} : ${executorMetricsUpdate.taskMetrics}")
-    }
+    //}
 
     override def onStageCompleted(stageCompleted: SparkListenerStageCompleted) { 
         channelReceiver.send("stageCompleted", s"""{
@@ -165,9 +165,27 @@ val __pixiedustSparkListener = new SparkListener{
             "time" : "${executorRemoved.time}",
             "executorInfo" : "${executorInfoJson}"
         }
-        """)
+        """)	    
     }
 
+   override def onExecutorMetricsUpdate(metricsUpdate: SparkListenerExecutorMetricsUpdate) {
+	val executorId = metricsUpdate.execId
+	val accumUpdates = metricsUpdate.accumUpdates
+	val executorMetrics = render(metricsUpdate.executorUpdates.map(executorMetricsToJson(_)))
+        channelReceiver.send("executorMetricsUpdate", s"""{
+            "executorId":"${executorId}",
+            "executorMetricsInfo" : "${executorMetrics}"
+        }	
+        """)	   
+   }
+	
+  /** Convert executor metrics to JSON. */
+  def executorMetricsToJson(executorMetrics: ExecutorMetrics): JValue = {
+    val metrics = ExecutorMetricType.metricToOffset.map { case (m, _) =>
+      JField(m, executorMetrics.getMetricValue(m))
+    }
+    JObject(metrics.toSeq: _*)
+  }
 }
 
 sc.addSparkListener(__pixiedustSparkListener)
