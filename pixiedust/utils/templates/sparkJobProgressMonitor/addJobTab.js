@@ -22,7 +22,6 @@ var jobName = 'Job {{data["jobId"]}} ({{data["stageInfos"]|length}} '+
 var totalCores = 'Cores {{data["executorInfo"].totalCores}}'
 $("#pm_overallContainer{{prefix}}").show();
 $("#pm_overallJobName{{prefix}}").text(jobName);
-$("#pm_overallNumCores{{prefix}}").text(totalCores);
 $("#pm_overallProgress{{prefix}}").attr("max", {{overalNumTasks}}).attr("value",0);
 $("#progressMonitors{{prefix}}").append(
     '<li>'+
