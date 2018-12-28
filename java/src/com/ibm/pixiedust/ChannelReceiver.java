@@ -29,8 +29,6 @@ public class ChannelReceiver {
 	}
 	
 	public void send(String channel, String data){
-		System.out.println(channel)
-		System.out.println(data)
 		if ( this.listener != null ){
 			this.listener.sendChannel(channel, data);
 		}
