@@ -12,6 +12,23 @@ import org.apache.spark.scheduler.cluster._
 import scala.collection.mutable.{ HashMap, HashSet, LinkedHashMap, ListBuffer }
 import java.net._
 import java.io._
+import java.util.{Properties, UUID}
+
+import scala.collection.JavaConverters._
+import scala.collection.Map
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import org.json4s.DefaultFormats
+import org.json4s.JsonAST._
+import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
+
+import org.apache.spark.executor._
+import org.apache.spark.metrics.ExecutorMetricType
+import org.apache.spark.rdd.RDDOperationScope
+import org.apache.spark.scheduler.cluster.ExecutorInfo
+import org.apache.spark.storage._
 
 import com.ibm.pixiedust._;
 
