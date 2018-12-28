@@ -11,7 +11,7 @@ import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.storage._
 //import org.apache.spark.util.{Utils, JsonProtocol}
 import org.apache.spark.scheduler.cluster._
-import org.apache.spark.InternalAccumulator
+//import org.apache.spark.InternalAccumulator
 
 import collection.JavaConverters._
 import scala.collection.mutable
@@ -215,12 +215,12 @@ val __pixiedustSparkListener = new SparkListener{
     ("Name" -> name) ~
     ("Update" -> accumulableInfo.update.map { v => accumValueToJson(name, v) }) ~
     ("Value" -> accumulableInfo.value.map { v => accumValueToJson(name, v) }) ~
-    ("Count Failed Values" -> accumulableInfo.countFailedValues) ~
-    ("Metadata" -> accumulableInfo.metadata)
+    //("Count Failed Values" -> accumulableInfo.countFailedValues) ~
+    //("Metadata" -> accumulableInfo.metadata)
   }	
 	
  def accumValueToJson(name: Option[String], value: Any): JValue = {
-    if (name.exists(_.startsWith(InternalAccumulator.METRICS_PREFIX))) {
+    if (name.exists(_.startsWith("internal.metrics."))) {
       value match {
         case v: Int => JInt(v)
         case v: Long => JInt(v)
