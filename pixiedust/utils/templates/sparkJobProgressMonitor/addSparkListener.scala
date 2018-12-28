@@ -198,7 +198,7 @@ val __pixiedustSparkListener = new SparkListener{
   def executorMetricsUpdateToJson(metricsUpdate: SparkListenerExecutorMetricsUpdate): JValue = {
     val execId = metricsUpdate.execId
     val accumUpdates = metricsUpdate.accumUpdates
-    ("Event" -> "SparkListenerExecutorMetricsUpdate" ~
+    ("Event" -> "SparkListenerExecutorMetricsUpdate") ~
     ("Executor ID" -> execId) ~
     ("Metrics Updated" -> accumUpdates.map { case (taskId, stageId, stageAttemptId, updates) =>
       ("Task ID" -> taskId) ~
