@@ -9,7 +9,7 @@ import org.apache.spark.executor._
 import org.apache.spark.rdd.RDDOperationScope
 import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.storage._
-import org.apache.spark.util.{Utils, JsonProtocol}
+//import org.apache.spark.util.{Utils, JsonProtocol}
 import org.apache.spark.scheduler.cluster._
 
 import collection.JavaConverters._
@@ -187,13 +187,27 @@ val __pixiedustSparkListener = new SparkListener{
 	val executorId = metricsUpdate.execId
 	val accumUpdates = metricsUpdate.accumUpdates
 	//val executorMetrics = render(metricsUpdate.executorUpdates.map(executorMetricsToJson(_)))
-	val executorMetrics = render(JsonProtocol.executorMetricsUpdateToJson(metricsUpdate))
+	val executorMetrics = render(executorMetricsUpdateToJson(metricsUpdate))
         channelReceiver.send("executorMetricsUpdate", s"""{
             "executorId":"${executorId}",
             "executorMetricsInfo" : "${executorMetrics}"
         }	
         """)	   
    }
+	
+  def executorMetricsUpdateToJson(metricsUpdate: SparkListenerExecutorMetricsUpdate): JValue = {
+    val execId = metricsUpdate.execId
+    val accumUpdates = metricsUpdate.accumUpdates
+    ("Event" -> Utils.getFormattedClassName(metricsUpdate)) ~
+    ("Executor ID" -> execId) ~
+    ("Metrics Updated" -> accumUpdates.map { case (taskId, stageId, stageAttemptId, updates) =>
+      ("Task ID" -> taskId) ~
+      ("Stage ID" -> stageId) ~
+      ("Stage Attempt ID" -> stageAttemptId) ~
+      ("Accumulator Updates" -> JArray(updates.map(accumulableInfoToJson).toList))
+    })
+  }
+	
 /*	
   def accumulablesToJson(accumulables: Traversable[AccumulableInfo]): JArray = {
     JArray(accumulables
