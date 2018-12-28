@@ -1,21 +1,25 @@
-import org.apache.spark.scheduler._
 import org.apache.spark.sql.types._
-import collection.JavaConverters._
-
 import org.apache.spark.scheduler._
 import org.apache.spark._
 import org.apache.spark.TaskEndReason
 import org.apache.spark.JobExecutionStatus
 import org.apache.spark.SparkContext
-import scala.collection.mutable
+import org.apache.spark.executor._
+//import org.apache.spark.metrics.ExecutorMetricType
+import org.apache.spark.rdd.RDDOperationScope
+import org.apache.spark.scheduler.cluster.ExecutorInfo
+import org.apache.spark.storage._
+import org.apache.spark.util.{Utils, JsonProtocol}
 import org.apache.spark.scheduler.cluster._
+
+import collection.JavaConverters._
+import scala.collection.mutable
+import scala.collection.JavaConverters._
+import scala.collection.Map
 import scala.collection.mutable.{ HashMap, HashSet, LinkedHashMap, ListBuffer }
 import java.net._
 import java.io._
 import java.util.{Properties, UUID}
-
-import scala.collection.JavaConverters._
-import scala.collection.Map
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
@@ -23,12 +27,6 @@ import org.json4s.DefaultFormats
 import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
-
-import org.apache.spark.executor._
-import org.apache.spark.metrics.ExecutorMetricType
-import org.apache.spark.rdd.RDDOperationScope
-import org.apache.spark.scheduler.cluster.ExecutorInfo
-import org.apache.spark.storage._
 
 import com.ibm.pixiedust._;
 
@@ -188,7 +186,8 @@ val __pixiedustSparkListener = new SparkListener{
    override def onExecutorMetricsUpdate(metricsUpdate: SparkListenerExecutorMetricsUpdate) {
 	val executorId = metricsUpdate.execId
 	val accumUpdates = metricsUpdate.accumUpdates
-	val executorMetrics = render(metricsUpdate.executorUpdates.map(executorMetricsToJson(_)))
+	//val executorMetrics = render(metricsUpdate.executorUpdates.map(executorMetricsToJson(_)))
+	val executorMetrics = JsonProtocol.sparkEventToJson(metricsUpdate)
         channelReceiver.send("executorMetricsUpdate", s"""{
             "executorId":"${executorId}",
             "executorMetricsInfo" : "${executorMetrics}"
@@ -196,13 +195,32 @@ val __pixiedustSparkListener = new SparkListener{
         """)	   
    }
 	
+  def accumulablesToJson(accumulables: Traversable[AccumulableInfo]): JArray = {
+    JArray(accumulables
+        .filterNot(_.name.exists(accumulableBlacklist.contains))
+        .toList.map(accumulableInfoToJson))
+  }
+	
+  def accumulableInfoToJson(accumulableInfo: AccumulableInfo): JValue = {
+    val name = accumulableInfo.name
+    ("ID" -> accumulableInfo.id) ~
+    ("Name" -> name) ~
+    ("Update" -> accumulableInfo.update.map { v => accumValueToJson(name, v) }) ~
+    ("Value" -> accumulableInfo.value.map { v => accumValueToJson(name, v) }) ~
+    ("Internal" -> accumulableInfo.internal) ~
+    ("Count Failed Values" -> accumulableInfo.countFailedValues) ~
+    ("Metadata" -> accumulableInfo.metadata)
+  }
+	
   /** Convert executor metrics to JSON. */
+  /**
   def executorMetricsToJson(executorMetrics: ExecutorMetrics): JValue = {
     val metrics = ExecutorMetricType.metricToOffset.map { case (m, _) =>
       JField(m.asInstanceOf[String], executorMetrics.getMetricValue(m))
     }
     JObject(metrics.toSeq: _*)
   }
+  */
 }
 
 sc.addSparkListener(__pixiedustSparkListener)
