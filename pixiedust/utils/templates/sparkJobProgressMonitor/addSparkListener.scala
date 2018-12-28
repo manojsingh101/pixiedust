@@ -29,8 +29,6 @@ import org.json4s.JsonAST._
 import org.json4s.JsonDSL._
 import org.json4s.jackson.JsonMethods._
 
-import com.ibm.pixiedust._;
-
 val executorCores = new HashMap[String, Int]
 @volatile var totalCores: Int = 0
 @volatile var numExecutors: Int = 0
