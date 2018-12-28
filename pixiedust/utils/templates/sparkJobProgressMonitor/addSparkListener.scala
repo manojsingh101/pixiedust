@@ -207,14 +207,7 @@ val __pixiedustSparkListener = new SparkListener{
       ("Accumulator Updates" -> JArray(updates.map(accumulableInfoToJson).toList))
     })
   }
-	
-/*	
-  def accumulablesToJson(accumulables: Traversable[AccumulableInfo]): JArray = {
-    JArray(accumulables
-        .filterNot(_.name.exists(accumulableBlacklist.contains))
-        .toList.map(accumulableInfoToJson))
-  }
-	
+
   def accumulableInfoToJson(accumulableInfo: AccumulableInfo): JValue = {
     val name = accumulableInfo.name
     ("ID" -> accumulableInfo.id) ~
@@ -224,8 +217,17 @@ val __pixiedustSparkListener = new SparkListener{
     ("Internal" -> accumulableInfo.internal) ~
     ("Count Failed Values" -> accumulableInfo.countFailedValues) ~
     ("Metadata" -> accumulableInfo.metadata)
+  }	
+	
+/*	
+  def accumulablesToJson(accumulables: Traversable[AccumulableInfo]): JArray = {
+    JArray(accumulables
+        .filterNot(_.name.exists(accumulableBlacklist.contains))
+        .toList.map(accumulableInfoToJson))
   }
-*/	
+*/
+
+	
   /** Convert executor metrics to JSON. */
   /**
   def executorMetricsToJson(executorMetrics: ExecutorMetrics): JValue = {
