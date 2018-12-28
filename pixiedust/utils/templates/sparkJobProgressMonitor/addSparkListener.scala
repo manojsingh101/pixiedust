@@ -11,6 +11,7 @@ import org.apache.spark.scheduler.cluster.ExecutorInfo
 import org.apache.spark.storage._
 //import org.apache.spark.util.{Utils, JsonProtocol}
 import org.apache.spark.scheduler.cluster._
+import org.apache.spark.InternalAccumulator
 
 import collection.JavaConverters._
 import scala.collection.mutable
@@ -214,10 +215,43 @@ val __pixiedustSparkListener = new SparkListener{
     ("Name" -> name) ~
     ("Update" -> accumulableInfo.update.map { v => accumValueToJson(name, v) }) ~
     ("Value" -> accumulableInfo.value.map { v => accumValueToJson(name, v) }) ~
-    ("Internal" -> accumulableInfo.internal) ~
     ("Count Failed Values" -> accumulableInfo.countFailedValues) ~
     ("Metadata" -> accumulableInfo.metadata)
   }	
+	
+ def accumValueToJson(name: Option[String], value: Any): JValue = {
+    if (name.exists(_.startsWith(InternalAccumulator.METRICS_PREFIX))) {
+      value match {
+        case v: Int => JInt(v)
+        case v: Long => JInt(v)
+        // We only have 3 kind of internal accumulator types, so if it's not int or long, it must be
+        // the blocks accumulator, whose type is `java.util.List[(BlockId, BlockStatus)]`
+        case v =>
+          JArray(v.asInstanceOf[java.util.List[(BlockId, BlockStatus)]].asScala.toList.map {
+            case (id, status) =>
+              ("Block ID" -> id.toString) ~
+              ("Status" -> blockStatusToJson(status))
+          })
+      }
+    } else {
+      // For all external accumulators, just use strings
+      JString(value.toString)
+    }
+  }
+	
+  def blockStatusToJson(blockStatus: BlockStatus): JValue = {
+    val storageLevel = storageLevelToJson(blockStatus.storageLevel)
+    ("Storage Level" -> storageLevel) ~
+    ("Memory Size" -> blockStatus.memSize) ~
+    ("Disk Size" -> blockStatus.diskSize)
+  }
+
+  def storageLevelToJson(storageLevel: StorageLevel): JValue = {
+    ("Use Disk" -> storageLevel.useDisk) ~
+    ("Use Memory" -> storageLevel.useMemory) ~
+    ("Deserialized" -> storageLevel.deserialized) ~
+    ("Replication" -> storageLevel.replication)
+  }
 	
 /*	
   def accumulablesToJson(accumulables: Traversable[AccumulableInfo]): JArray = {
