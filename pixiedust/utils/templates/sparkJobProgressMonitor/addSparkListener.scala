@@ -213,8 +213,8 @@ val __pixiedustSparkListener = new SparkListener{
     val name = accumulableInfo.name
     ("ID" -> accumulableInfo.id) ~
     ("Name" -> name) ~
-    ("Update" -> accumulableInfo.update.map { v => accumValueToJson(name, v) }) ~
-    ("Value" -> accumulableInfo.value.map { v => accumValueToJson(name, v) }) ~
+    ("Update" -> accumulableInfo.update.map { v => accumValueToJson(name, v) }) ~(_)
+    ("Value" -> accumulableInfo.value.map { v => accumValueToJson(name, v) }) ~(_)
     //("Count Failed Values" -> accumulableInfo.countFailedValues) ~
     //("Metadata" -> accumulableInfo.metadata)
   }	
