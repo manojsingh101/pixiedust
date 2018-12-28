@@ -199,7 +199,7 @@ val __pixiedustSparkListener = new SparkListener{
   /** Convert executor metrics to JSON. */
   def executorMetricsToJson(executorMetrics: ExecutorMetrics): JValue = {
     val metrics = ExecutorMetricType.metricToOffset.map { case (m, _) =>
-      JField(m, executorMetrics.getMetricValue(m))
+      JField(m.asInstanceOf[String], executorMetrics.getMetricValue(m))
     }
     JObject(metrics.toSeq: _*)
   }
