@@ -187,7 +187,7 @@ val __pixiedustSparkListener = new SparkListener{
 	val executorId = metricsUpdate.execId
 	val accumUpdates = metricsUpdate.accumUpdates
 	//val executorMetrics = render(metricsUpdate.executorUpdates.map(executorMetricsToJson(_)))
-	val executorMetrics = JsonProtocol.sparkEventToJson(metricsUpdate)
+	val executorMetrics = render(JsonProtocol.executorMetricsUpdateToJson(metricsUpdate))
         channelReceiver.send("executorMetricsUpdate", s"""{
             "executorId":"${executorId}",
             "executorMetricsInfo" : "${executorMetrics}"
