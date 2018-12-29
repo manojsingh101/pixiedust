@@ -89,6 +89,7 @@ class SparkJobProgressMonitorOutput(Thread):
                         js += _env.getTemplate("sparkJobProgressMonitor/addJobTab.js").render( 
                             prefix=self.prefix, data=data, overalNumTasks=reduce(lambda x,y:x+y["numTasks"], data["stageInfos"], 0) 
                         )
+                        
                     elif channel=="stageSubmitted":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
                             prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Submitted", host=None 
@@ -110,15 +111,17 @@ class SparkJobProgressMonitorOutput(Thread):
                         )
                     elif channel=="executorAdded":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
-                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"], numExecutors = data["executorInfo"]["numExecutors"]
+                            prefix=self.prefix,  totalCores=data["executorInfo"]["totalCores"], numExecutors=data["executorInfo"]["numExecutors"]
                         )
+                        print(js)
                     elif channel=="executorRemoved":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
-                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"], numExecutors = data["executorInfo"]["numExecutors"]
+                            prefix=self.prefix,  totalCores=data["executorInfo"]["totalCores"], numExecutors=data["executorInfo"]["numExecutors"]
                         )
+                        print(js)
                     elif channel=="executorMetricsUpdate":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
-                            prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorMetricsInfo"]["totalCores"]
+                            prefix=self.prefix,  totalCores= data["executorMetricsInfo"]["totalCores"]
                         )
                     js += "\n"
                 #print(js)
