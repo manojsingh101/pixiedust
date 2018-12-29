@@ -95,28 +95,32 @@ class SparkJobProgressMonitorOutput(Thread):
                             prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Submitted", host=None 
                         )
                     elif channel=="taskStart":
-                        js += _env.getTemplate("sparkJobProgressMonitor/taskStart.js").render( prefix=self.prefix, data=data, increment = data["increment"] )
+                        js += _env.getTemplate("sparkJobProgressMonitor/taskStart.js").render( 
+                            prefix=self.prefix, data=data, increment = data["increment"],
+                            totalCores=data["totalCores"], numExecutors=data["numExecutors"] )
                         js += "\n"
                         js += _env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
                             prefix=self.prefix, stageId=data["stageId"], status="Running",
-                            host="{0}({1})".format(data["taskInfo"]["executorId"],data["taskInfo"]["host"] )
+                            host="{0}({1})".format(data["taskInfo"]["executorId"],data["taskInfo"]["host"] ),
+                            totalCores=data["totalCores"], numExecutors=data["numExecutors"]
                         )
                     elif channel=="stageCompleted":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateStageStatus.js").render( 
-                            prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Completed", host=None 
+                            prefix=self.prefix, stageId=data["stageInfo"]["stageId"], status="Completed", host=None,
+                            totalCores=data["totalCores"], numExecutors=data["numExecutors"] 
                         )
                     elif channel=="jobEnd":
                         js += _env.getTemplate("sparkJobProgressMonitor/jobEnded.js").render( 
-                            prefix=self.prefix, jobId=data["jobId"] 
+                            prefix=self.prefix, jobId=data["jobId"],  totalCores=data["totalCores"], numExecutors=data["numExecutors"] 
                         )
                     elif channel=="executorAdded":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
-                            prefix=self.prefix,  totalCores=data["executorInfo"]["totalCores"], numExecutors=data["executorInfo"]["numExecutors"]
+                            prefix=self.prefix,  totalCores=data["totalCores"], numExecutors=data["numExecutors"]
                         )
                         print(js)
                     elif channel=="executorRemoved":
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
-                            prefix=self.prefix,  totalCores=data["executorInfo"]["totalCores"], numExecutors=data["executorInfo"]["numExecutors"]
+                            prefix=self.prefix,  totalCores=data["totalCores"], numExecutors=data["numExecutors"]
                         )
                         print(js)
                     elif channel=="executorMetricsUpdate":
