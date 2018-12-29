@@ -128,14 +128,14 @@ val __pixiedustSparkListener = new SparkListener{
 
         val executorInfoJson = s"""{
             "host" : "${executorAdded.executorInfo.executorHost}",
-            "numCores" : "${executorAdded.executorInfo.totalCores}",
-            "totalCores" : "${totalCores}"
+            "numCores" : ${executorAdded.executorInfo.totalCores},
+            "totalCores" : ${totalCores}
         }"""
 
         channelReceiver.send("executorAdded", s"""{
             "executorId":"${executorAdded.executorId}",
             "time" : "${executorAdded.time}",
-            "executorInfo" : "${executorInfoJson}"
+            "executorInfo" : ${executorInfoJson}
         }
         """)
     }
@@ -146,13 +146,13 @@ val __pixiedustSparkListener = new SparkListener{
         numExecutors -= 1
 
         val executorInfoJson = s"""{
-            "totalCores" : "${totalCores}"
+            "totalCores" : ${totalCores}
         }"""
 
         channelReceiver.send("executorRemoved", s"""{
             "executorId":"${executorRemoved.executorId}",
             "time" : "${executorRemoved.time}",
-            "executorInfo" : "${executorInfoJson}"
+            "executorInfo" : ${executorInfoJson}
         }
         """)
     }
@@ -163,7 +163,7 @@ val __pixiedustSparkListener = new SparkListener{
         val executorMetrics = render(executorMetricsUpdateToJson(metricsUpdate))
         channelReceiver.send("executorMetricsUpdate", s"""{
             "executorId":"${executorId}",
-            "executorMetricsInfo" : "${executorMetrics}"
+            "executorMetricsInfo" : ${executorMetrics}
         }
         """)
     }
@@ -221,4 +221,5 @@ val __pixiedustSparkListener = new SparkListener{
     }
 
 }
+
 sc.addSparkListener(__pixiedustSparkListener)
