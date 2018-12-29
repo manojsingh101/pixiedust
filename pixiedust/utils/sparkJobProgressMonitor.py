@@ -121,7 +121,7 @@ class SparkJobProgressMonitorOutput(Thread):
                             prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorMetricsInfo"]["totalCores"]
                         )
                     js += "\n"
-                print(js)
+                #print(js)
                 display(Javascript(js))
             time.sleep(0.5)
 
