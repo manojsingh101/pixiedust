@@ -128,9 +128,9 @@ val __pixiedustSparkListener = new SparkListener{
 
         val executorInfoJson = s"""{
             "host" : "${executorAdded.executorInfo.executorHost}",
-            "numCores" : ${executorAdded.executorInfo.totalCores},
-	    "numExecutors" : ${numExecutors},
-            "totalCores" : ${totalCores}
+            "numCores" : "${executorAdded.executorInfo.totalCores}",
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }"""
 
         channelReceiver.send("executorAdded", s"""{
@@ -147,8 +147,8 @@ val __pixiedustSparkListener = new SparkListener{
         numExecutors -= 1
 
         val executorInfoJson = s"""{
-	    "numExecutors" : ${numExecutors},
-            "totalCores" : ${totalCores}
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }"""
 
         channelReceiver.send("executorRemoved", s"""{
