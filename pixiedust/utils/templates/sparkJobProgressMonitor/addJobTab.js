@@ -22,6 +22,9 @@ var jobName = 'Job {{data["jobId"]}} ({{data["stageInfos"]|length}} '+
 $("#pm_overallContainer{{prefix}}").show();
 $("#pm_overallJobName{{prefix}}").text(jobName);
 $("#pm_overallProgress{{prefix}}").attr("max", {{overalNumTasks}}).attr("value",0);
+$("#pm_overallNumCores{{prefix}}").text("{{totalCores}}");
+$("#pm_overallNumExecutors{{prefix}}").text("{{numExecutors}}");
+ 
 $("#progressMonitors{{prefix}}").append(
     '<li>'+
         '<a style="padding: 5px 5px;font-size: 12px;" data-toggle="tab" href="#menu{{prefix}}{{data["jobId"]}}">'+
