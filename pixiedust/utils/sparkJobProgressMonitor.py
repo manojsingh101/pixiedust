@@ -109,17 +109,14 @@ class SparkJobProgressMonitorOutput(Thread):
                             prefix=self.prefix, jobId=data["jobId"] 
                         )
                     elif channel=="executorAdded":
-                        print(data)
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
                             prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"], numExecutors = data["executorInfo"]["numExecutors"]
                         )
                     elif channel=="executorRemoved":
-                        print(data)
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
                             prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorInfo"]["totalCores"], numExecutors = data["executorInfo"]["numExecutors"]
                         )
                     elif channel=="executorMetricsUpdate":
-                        print(data)
                         js += _env.getTemplate("sparkJobProgressMonitor/updateExecutor.js").render( 
                             prefix=self.prefix, executorId=data["executorId"], totalCores= data["executorMetricsInfo"]["totalCores"]
                         )
@@ -174,10 +171,8 @@ class SparkJobProgressMonitorOutput(Thread):
                 key = "{0}-{1}".format(channel,data["jobId"])
             elif channel=="executorAdded":
                 key = "{0}-{1}".format(channel,data["executorId"])
-                print(s)
             elif channel=="executorRemoved":
                 key = "{0}-{1}".format(channel,data["executorId"])
-                print(s)
                 
             if key:
                 with self.lock:
