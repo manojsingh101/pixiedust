@@ -58,7 +58,7 @@ class SparkJobProgressMonitorOutput(Thread):
     
     def __init__(self):
         super(SparkJobProgressMonitorOutput,self).__init__()
-        self.prefix = None
+        self.prefix = str(uuid.uuid4())[:8]
         self.lock = Lock()
         self.triggerEvent = Event()
         self.daemon = True
