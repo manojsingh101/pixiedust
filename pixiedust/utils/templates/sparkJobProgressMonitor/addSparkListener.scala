@@ -52,7 +52,7 @@ def serializeTaskEndJSON(taskEnd: SparkListenerTaskEnd):String = {
         "launchTime":${taskInfo.launchTime},
         "executorId":"${taskInfo.executorId}",
         "host":"${taskInfo.host}",
-	      "peakExecutionMemory":"${metricsOpt.map(_.peakExecutionMemory).getOrElse(0L)}"
+	"peakExecutionMemory":"${metricsOpt.map(_.peakExecutionMemory).getOrElse(0L)}"
     }"""
 }
 
@@ -67,7 +67,9 @@ val __pixiedustSparkListener = new SparkListener{
     override def onJobStart(jobStart: SparkListenerJobStart) {
         channelReceiver.send("jobStart", s"""{
             "jobId":"${jobStart.jobId}",
-            "stageInfos":${serializeStagesJSON(jobStart.stageInfos)}
+            "stageInfos":${serializeStagesJSON(jobStart.stageInfos)},
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
@@ -78,7 +80,9 @@ val __pixiedustSparkListener = new SparkListener{
         }
         channelReceiver.send("jobEnd", s"""{
             "jobId":"${jobEnd.jobId}",
-            "jobResult": "${jobResult}"
+            "jobResult": "${jobResult}",
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
@@ -87,7 +91,9 @@ val __pixiedustSparkListener = new SparkListener{
 
         channelReceiver.send("taskStart", s"""{
             "stageId":"${taskStart.stageId}",
-            "taskInfo":${serializeTaskStartJSON(taskStart.taskInfo)}
+            "taskInfo":${serializeTaskStartJSON(taskStart.taskInfo)},
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"	    
         }
         """)
     }
@@ -97,14 +103,18 @@ val __pixiedustSparkListener = new SparkListener{
         channelReceiver.send("taskEnd", s"""{
             "stageId":"${taskEnd.stageId}",
             "taskType":"${taskEnd.taskType}",
-            "taskInfo":${serializeTaskEndJSON(taskEnd)}
+            "taskInfo":${serializeTaskEndJSON(taskEnd)},
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
 
     override def onStageSubmitted(stageSubmitted: SparkListenerStageSubmitted) {
         channelReceiver.send("stageSubmitted", s"""{
-            "stageInfo": ${serializeStageJSON(stageSubmitted.stageInfo)}
+            "stageInfo": ${serializeStageJSON(stageSubmitted.stageInfo)},
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
@@ -115,7 +125,9 @@ val __pixiedustSparkListener = new SparkListener{
 
     override def onStageCompleted(stageCompleted: SparkListenerStageCompleted) {
         channelReceiver.send("stageCompleted", s"""{
-            "stageInfo":${serializeStageJSON(stageCompleted.stageInfo)}
+            "stageInfo":${serializeStageJSON(stageCompleted.stageInfo)},
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
@@ -136,7 +148,10 @@ val __pixiedustSparkListener = new SparkListener{
         channelReceiver.send("executorAdded", s"""{
             "executorId":"${executorAdded.executorId}",
             "time" : "${executorAdded.time}",
-            "executorInfo" : ${executorInfoJson}
+            "host" : "${executorAdded.executorInfo.executorHost}",
+            "numCores" : "${executorAdded.executorInfo.totalCores}",
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
@@ -154,7 +169,8 @@ val __pixiedustSparkListener = new SparkListener{
         channelReceiver.send("executorRemoved", s"""{
             "executorId":"${executorRemoved.executorId}",
             "time" : "${executorRemoved.time}",
-            "executorInfo" : ${executorInfoJson}
+	    "numExecutors" : "${numExecutors}",
+            "totalCores" : "${totalCores}"
         }
         """)
     }
