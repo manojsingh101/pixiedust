@@ -156,7 +156,8 @@ val __pixiedustSparkListener = new SparkListener{
         }
         """)
     }
-
+	
+    /*
     override def onExecutorMetricsUpdate(metricsUpdate: SparkListenerExecutorMetricsUpdate) {
         val executorId = metricsUpdate.execId
         val accumUpdates = metricsUpdate.accumUpdates
@@ -166,7 +167,7 @@ val __pixiedustSparkListener = new SparkListener{
             "executorMetricsInfo" : ${executorMetrics}
         }
         """)
-    }
+    }*/
 
     def executorMetricsUpdateToJson(metricsUpdate: SparkListenerExecutorMetricsUpdate): JValue = {
         val execId = metricsUpdate.execId
